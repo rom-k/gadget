@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+#
 """This file contains GReader class to get RSS information from Google Reader.
 
 Copyleft rom.cpp@gmail.com
@@ -10,6 +10,7 @@ import getpass
 import urllib
 import urllib2
 from xml.dom import minidom
+
 
 class GReader(object):
     """Class to get RSS information from Google Reader.
@@ -28,27 +29,31 @@ class GReader(object):
         """Request for authentication to connect reader service."""
 
         # Overwrite email and passwd.
-        if email is not None: self.email = email
-        if passwd is not None: self.passwd = passwd
+        if email is not None:
+            self.email = email
+        if passwd is not None:
+            self.passwd = passwd
 
         # Check for None values.
-        if self.email is None: raise
+        if self.email is None:
+            raise
         if self.passwd is None:
             self.passwd = getpass.getpass()
-            if self.passwd is None: raise
+            if self.passwd is None:
+                raise
 
         # Web request for authentication.
         url = 'https://www.google.com/accounts/ClientLogin'
         params = {
-            'Email'   : self.email,
-            'Passwd'  : self.passwd,
-            'service' : 'reader',
+            'Email': self.email,
+            'Passwd': self.passwd,
+            'service': 'reader',
         }
         req = urllib2.Request(url, urllib.urlencode(params))
         try:
             resp = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
-            raise Exception, 'ClientLogin failed.'
+            raise Exception('ClientLogin failed.')
 
         # Get auth.
         for line in resp:
@@ -61,19 +66,19 @@ class GReader(object):
 
         # Web request for feeds.
         url = 'https://www.google.com/reader/api/0/subscription/list'
-        header = { 'Authorization' : 'GoogleLogin auth=' + self.auth }
+        header = {'Authorization': 'GoogleLogin auth=' + self.auth}
         req = urllib2.Request(url, None, header)
         try:
             resp = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
-            raise Exception, 'Failed to connect Google Reader.'
+            raise Exception('Failed to connect Google Reader.')
 
         # Get feed ids and titles.
         xdoc = minidom.parse(resp)
         objects = xdoc.getElementsByTagName('object')
         self.rsss = {}
         for o in objects:
-            rss = { 'total' : 0, 'starred' : 0 }
+            rss = {'total': 0, 'starred': 0}
             for c in o.childNodes:
                 if c.getAttribute('name') in ('id', 'title'):
                     rss[c.getAttribute('name')] = c.childNodes[0].data
@@ -87,13 +92,14 @@ class GReader(object):
         num = 1000
 
         # Web request for read articles.
-        url = 'https://www.google.com/reader/atom/user/-/state/com.google/read?n=' + str(num)
-        header = { 'Authorization' : 'GoogleLogin auth=' + self.auth }
+        url = ('https://www.google.com/reader/atom/user/-/state/com.google'
+               '/read?n=' + str(num))
+        header = {'Authorization': 'GoogleLogin auth=' + self.auth}
         req = urllib2.Request(url, None, header)
         try:
             resp = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
-            raise Exception, 'Failed to connect Google Reader.'
+            raise Exception('Failed to connect Google Reader.')
 
         # Count read and starred article for each id.
         xdoc = minidom.parse(resp)
@@ -104,8 +110,8 @@ class GReader(object):
             for c in e.childNodes:
                 if c.nodeName == 'source':
                     id = c.getAttribute('gr:stream-id')
-                elif (c.nodeName == 'category'
-                    and c.getAttribute('label') == 'starred'):
+                elif (c.nodeName == 'category' and
+                        c.getAttribute('label') == 'starred'):
                     star = 1
             if id in self.rsss.keys():
                 self.rsss[id]['total'] += 1
@@ -125,7 +131,7 @@ class GReader(object):
 
 
 if __name__ == '__main__':
-    email  = 'youremail@gmail.com'
+    email = 'youremail@gmail.com'
     passwd = 'xxx'
 
     gr = GReader(email, passwd)
@@ -141,11 +147,12 @@ if __name__ == '__main__':
         starred = gr.GetStarred(id)
 
         if total > 0:
-            s = "%6.1f %% : %2d / %2d : %s" % (100.0 * starred / total, starred, total, title)
+            s = ("%6.1f %% : %2d / %2d : %s"
+                 % (100.0 * starred / total, starred, total, title))
             out.append(s)
             val[s] = total - (1.0 * starred / total)
 
-    out.sort(key = lambda x: val[x])
+    out.sort(key=lambda x: val[x])
     out.reverse()
-    for x in out: print x
-
+    for x in out:
+        print x
