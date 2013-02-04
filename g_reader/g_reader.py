@@ -52,7 +52,7 @@ class GReader(object):
         req = urllib2.Request(url, urllib.urlencode(params))
         try:
             resp = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError:
             raise Exception('ClientLogin failed.')
 
         # Get auth.
@@ -70,7 +70,7 @@ class GReader(object):
         req = urllib2.Request(url, None, header)
         try:
             resp = urllib2.urlopen(req)
-        except urllib2.HTTPError, e:
+        except urllib2.HTTPError:
             raise Exception('Failed to connect Google Reader.')
 
         # Get feed ids and titles.
