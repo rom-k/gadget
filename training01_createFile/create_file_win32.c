@@ -1,4 +1,5 @@
 #include<windows.h>
+#include<winbase.h>
 
 int WINAPI WinMain(
 	HINSTANCE hInstance,
@@ -16,15 +17,7 @@ int WINAPI WinMain(
 		CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL
 		);
 
-	/*
-	if (hFile == INVALID_HANDLE_VALUE) {
-		MessageBox(
-			NULL, TEXT("ファイルを作成できませんでした"),
-			TEXT("エラー"), MB_OK
-			);
-		return 1;
-	}
-	*/
+	DebugBreak();
 
 	WriteFile(hFile, lpText, lstrlen(lpText), &dwWriteSize, NULL);
 
